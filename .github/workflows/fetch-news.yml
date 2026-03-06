@@ -1,0 +1,25 @@
+name: Fetch AI News
+on:
+  schedule:
+    - cron: '0 */6 * * *' # 每6小时运行一次
+  workflow_dispatch:      # 允许手动触发
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch News
+        run: |
+          # 这里可以替换为真实的爬虫脚本或调用 API
+          # 目前仅作演示：更新一个时间戳确保文件有变化
+          echo "Fetching news..."
+          # 示例：curl -L https://example.com/api/news > public/data/news.json
+          
+      - name: Commit and Push
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/data/news.json
+          git commit -m "chore: auto-update news flash [skip ci]" || echo "No changes to commit"
+          git push origin main

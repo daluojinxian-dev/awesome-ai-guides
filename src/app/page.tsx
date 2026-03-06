@@ -1,9 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import { AI_TOOLS, CATEGORIES } from "@/lib/data";
-import { Search, ExternalLink, BookOpen, Brain, Download, Code2, Image as ImageIcon } from "lucide-react";
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { AI_TOOLS, CATEGORIES, TRANSLATIONS } from "@/lib/data";
+import { Search, ExternalLink, BookOpen, Brain, Download, Code2, Image as ImageIcon, Languages, Sun, Moon, Monitor } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTheme } from "next-themes";
+import NewsFlash from "@/components/NewsFlash";
 
 const iconMap: Record<string, any> = {
   Brain: Brain,
@@ -13,30 +16,95 @@ const iconMap: Record<string, any> = {
 };
 
 export default function Home() {
+  const [lang, setLang] = useState<"zh" | "en">("zh");
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeCategory, setActiveCategory] = useState("全部");
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  // 防止水合不匹配
+  useEffect(() => setMounted(true), []);
+
+  const t = TRANSLATIONS[lang];
+  const currentCategories = CATEGORIES[lang];
+
+  const [activeCategory, setActiveCategory] = useState(TRANSLATIONS[lang].all);
 
   const filteredTools = AI_TOOLS.filter((tool) => {
-    const matchesSearch = tool.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      tool.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = activeCategory === "全部" || tool.category === activeCategory;
+    const desc = tool.desc[lang];
+    const category = tool.category[lang];
+    const matchesSearch =
+      tool.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      desc.toLowerCase().includes(searchQuery.toLowerCase());
+
+    // 处理“全部”分类的逻辑
+    const matchesCategory = activeCategory === t.all || category === activeCategory;
     return matchesSearch && matchesCategory;
   });
 
+  const toggleLang = () => {
+    const nextLang = lang === "zh" ? "en" : "zh";
+    // 关键点：通过批量更新，避免产生“中间状态”导致列表被清空
+    const currentIndex = CATEGORIES[lang].indexOf(activeCategory);
+    setLang(nextLang);
+    if (currentIndex !== -1) {
+      setActiveCategory(CATEGORIES[nextLang][currentIndex]);
+    } else {
+      setActiveCategory(TRANSLATIONS[nextLang].all);
+    }
+  };
+
+  const cycleTheme = () => {
+    if (theme === "system") setTheme("light");
+    else if (theme === "light") setTheme("dark");
+    else setTheme("system");
+  };
+
+  const getThemeIcon = () => {
+    if (!mounted) return <Monitor className="w-4 h-4" />;
+    if (theme === "system") return <Monitor className="w-4 h-4" />;
+    if (theme === "light") return <Sun className="w-4 h-4" />;
+    return <Moon className="w-4 h-4" />;
+  };
+
+  const getThemeLabel = () => {
+    if (!mounted) return t.themeSystem;
+    if (theme === "system") return t.themeSystem;
+    if (theme === "light") return t.themeLight;
+    return t.themeDark;
+  };
+
   return (
-    <main className="min-h-screen bg-mesh text-foreground selection:bg-primary/30">
+    <main className="min-h-screen bg-mesh text-foreground selection:bg-primary/30 transition-colors duration-300">
+      {/* Navigation / Setting area */}
+      <nav className="fixed top-0 w-full z-50 px-6 py-4 flex justify-end gap-3">
+        <button
+          onClick={toggleLang}
+          className="flex items-center gap-2 px-4 py-2 rounded-full glass-card hover:bg-primary/5 transition-all text-sm font-medium border-border"
+        >
+          <Languages className="w-4 h-4 text-primary" />
+          {t.lang}
+        </button>
+        <button
+          onClick={cycleTheme}
+          className="flex items-center gap-2 px-4 py-2 rounded-full glass-card hover:bg-primary/5 transition-all text-sm font-medium border-border"
+        >
+          {getThemeIcon()}
+          {getThemeLabel()}
+        </button>
+      </nav>
+
       {/* Hero Section */}
-      <section className="relative pt-24 pb-16 px-6 text-center">
+      <section className="relative pt-32 pb-16 px-6 text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary via-secondary to-accent mb-6 leading-tight">
-            AI 进化指南
+            {t.title}
           </h1>
-          <p className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-10">
-            一站式整理全球顶尖 AI 工具、本地搭建教程与提效技巧。助你在这个 AI 时代保持进化。
+          <p className="text-lg md:text-xl text-muted max-w-2xl mx-auto mb-10">
+            {t.subtitle}
           </p>
         </motion.div>
 
@@ -44,11 +112,11 @@ export default function Home() {
         <div className="max-w-2xl mx-auto relative group">
           <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full opacity-0 group-focus-within:opacity-100 transition-opacity" />
           <div className="relative flex items-center bg-card/50 border border-border rounded-2xl px-6 py-4 focus-within:border-primary/50 transition-colors shadow-2xl">
-            <Search className="w-5 h-5 text-slate-500 mr-4" />
+            <Search className="w-5 h-5 text-muted mr-4" />
             <input
               type="text"
-              placeholder="搜索 AI 工具、教程..."
-              className="bg-transparent border-none outline-none w-full text-lg placeholder:text-slate-600 appearance-none"
+              placeholder={t.searchPlaceholder}
+              className="bg-transparent border-none outline-none w-full text-lg placeholder:text-muted/50 appearance-none"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -56,15 +124,17 @@ export default function Home() {
         </div>
       </section>
 
+      <NewsFlash />
+
       {/* Category Tabs */}
       <div className="max-w-7xl mx-auto px-6 mb-12 flex flex-wrap gap-3 justify-center">
-        {CATEGORIES.map((cat) => (
+        {currentCategories.map((cat) => (
           <button
             key={cat}
             onClick={() => setActiveCategory(cat)}
             className={`px-6 py-2 rounded-full border transition-all duration-300 transform active:scale-95 ${activeCategory === cat
-                ? "bg-primary border-primary text-white shadow-lg shadow-primary/30"
-                : "border-border bg-card/30 text-slate-400 hover:border-slate-600 hover:bg-card/50"
+              ? "bg-primary border-primary text-white shadow-lg shadow-primary/30"
+              : "border-border bg-card/30 text-muted hover:border-primary/40 hover:text-primary hover:bg-card/50"
               }`}
           >
             {cat}
@@ -74,25 +144,25 @@ export default function Home() {
 
       {/* Tools Grid */}
       <section className="max-w-7xl mx-auto px-6 pb-24">
-        <motion.div
-          layout
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        <div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative"
         >
-          <AnimatePresence mode="popLayout">
+          <AnimatePresence mode="popLayout" initial={false}>
             {filteredTools.map((tool) => {
               const Icon = iconMap[tool.icon] || Brain;
               return (
                 <motion.div
                   key={tool.id}
                   layout
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
                   whileHover={{ y: -5 }}
-                  className="glass-card p-6 rounded-2xl flex flex-col h-full group transition-all duration-300 hover:border-primary/30"
+                  className="glass-card p-6 rounded-2xl flex flex-col h-full group transition-all duration-300 hover:border-primary/30 shadow-xl"
                 >
                   <div className="flex items-start justify-between mb-4">
-                    <div className="p-3 rounded-xl bg-gradient-to-br from-primary/10 to-secondary/10 group-hover:from-primary/20 group-hover:to-secondary/20 transition-colors">
+                    <div className="p-3 rounded-xl bg-primary/5 group-hover:bg-primary/10 transition-colors border border-primary/10">
                       <Icon className="w-6 h-6 text-primary" />
                     </div>
                     <div className="flex gap-2">
@@ -100,7 +170,7 @@ export default function Home() {
                         href={tool.link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="p-2 hover:bg-white/5 rounded-lg text-slate-400 hover:text-white transition-colors"
+                        className="p-2 hover:bg-primary/5 rounded-lg text-muted hover:text-primary transition-colors border border-transparent hover:border-border"
                       >
                         <ExternalLink className="w-4 h-4" />
                       </a>
@@ -109,60 +179,59 @@ export default function Home() {
 
                   <h3 className="text-xl font-semibold mb-2 flex items-center gap-2">
                     {tool.name}
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-border text-slate-500 font-normal">
-                      {tool.category}
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-border text-muted font-normal">
+                      {tool.category[lang]}
                     </span>
                   </h3>
-                  <p className="text-slate-400 text-sm mb-6 flex-grow leading-relaxed">
-                    {tool.description}
+                  <p className="text-muted text-sm mb-6 flex-grow leading-relaxed">
+                    {tool.desc[lang]}
                   </p>
 
                   <div className="flex items-center justify-between mt-auto pt-4 border-t border-border/50">
                     <div className="flex gap-1 flex-wrap">
                       {tool.tags.map(tag => (
-                        <span key={tag} className="text-[10px] text-slate-500 bg-white/5 px-2 py-0.5 rounded">#{tag}</span>
+                        <span key={tag} className="text-[10px] text-muted bg-primary/5 px-2 py-0.5 rounded border border-border/30">#{tag}</span>
                       ))}
                     </div>
                     {tool.tutorial ? (
-                      <button className="flex items-center gap-2 text-sm text-primary hover:text-accent transition-colors font-medium">
+                      <Link href={tool.tutorial} className="flex items-center gap-2 text-sm text-primary hover:text-secondary transition-colors font-medium group/btn">
                         <BookOpen className="w-4 h-4" />
-                        查看教程
-                      </button>
+                        {t.viewTutorial}
+                      </Link>
                     ) : (
-                      <span className="text-[10px] text-slate-600">教程筹备中</span>
+                      <span className="text-[10px] text-muted/60 italic">{t.preparing}</span>
                     )}
                   </div>
                 </motion.div>
               );
             })}
           </AnimatePresence>
-        </motion.div>
+        </div>
 
         {filteredTools.length === 0 && (
-          <div className="text-center py-24 text-slate-500 flex flex-col items-center gap-4">
-            <div className="p-6 rounded-full bg-card/50 border border-border">
-              <Search className="w-12 h-12 text-slate-700" />
+          <div className="text-center py-24 text-muted flex flex-col items-center gap-4">
+            <div className="p-6 rounded-full bg-card/50 border border-border animate-pulse">
+              <Search className="w-12 h-12 text-muted/30" />
             </div>
-            <p className="text-lg">未找到相关工具，换个关键词试试？</p>
+            <p className="text-lg">{t.noResults}</p>
           </div>
         )}
       </section>
 
       {/* Footer / Ad Placeholder */}
-      <footer className="border-t border-border mt-12 py-12 px-6">
+      <footer className="border-t border-border mt-12 py-12 px-6 bg-card/20">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-left">
-          <div className="text-slate-500 text-sm max-w-xs">
-            © 2026 AI 进化指南. 基于 Next.js 与 GitHub Pages 托管.
-            <p className="mt-1">发现 AI 的力量，提升人类的可能。</p>
+          <div className="text-muted text-sm max-w-xs">
+            © 2026 {t.title}. Based on Next.js & GitHub Pages.
+            <p className="mt-1 text-muted/60">{t.footerCaption}</p>
           </div>
-          {/* 这里预留 AdSense 占位 */}
-          <div className="bg-border/30 px-8 py-3 rounded-lg text-[10px] text-slate-600 uppercase tracking-widest border border-dashed border-border flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-primary/40 animate-pulse" />
+          <div className="bg-border/30 px-8 py-3 rounded-lg text-[10px] text-muted uppercase tracking-widest border border-dashed border-border flex items-center gap-2 group hover:border-primary/30 transition-colors">
+            <span className="w-2 h-2 rounded-full bg-primary/40 animate-pulse group-hover:bg-primary/60" />
             Advertisement Space
           </div>
           <div className="flex gap-6">
-            <a href="#" className="text-slate-500 hover:text-primary transition-colors text-sm">隐私政策</a>
-            <a href="#" className="text-slate-500 hover:text-primary transition-colors text-sm">免责声明</a>
+            <Link href="/privacy" className="text-muted hover:text-primary transition-colors text-sm underline-offset-4 hover:underline">{t.privacy}</Link>
+            <Link href="/disclaimer" className="text-muted hover:text-primary transition-colors text-sm underline-offset-4 hover:underline">{t.disclaimer}</Link>
           </div>
         </div>
       </footer>

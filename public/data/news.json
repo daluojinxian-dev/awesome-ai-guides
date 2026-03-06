@@ -1,0 +1,20 @@
+[
+    {
+        "id": 1,
+        "title": "DeepSeek-V3 正式开源，多项指标超越 GPT-4o",
+        "url": "https://www.deepseek.com",
+        "time": "2026-03-06 08:30"
+    },
+    {
+        "id": 2,
+        "title": "OpenAI 发布全新 Sora 视频模型测试版本",
+        "url": "https://openai.com/sora",
+        "time": "2026-03-06 09:15"
+    },
+    {
+        "id": 3,
+        "title": "NVIDIA 发布新一代 AI 芯片，算力提升 4 倍",
+        "url": "https://nvidia.com",
+        "time": "2026-03-06 10:00"
+    }
+]
