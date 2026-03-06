@@ -1,0 +1,60 @@
+backend:
+  name: github
+  repo: daluojinxian-dev/awesome-ai-guides
+  branch: main
+  client_id: Ov23liJA7rmEXmuEBwtv 
+  base_url: https://awesome-ai-guides.vercel.app # 您的私人网关地址
+
+local_backend: true # 开启本地开发模式
+
+media_folder: "public/images/uploads"
+public_folder: "/images/uploads"
+
+collections:
+  - name: "tutorials"
+    label: "教程文章"
+    folder: "src/content/tutorials"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "标题", name: "title", widget: "string" }
+      - { label: "日期", name: "date", widget: "datetime", format: "YYYY-MM-DD" }
+      - { label: "作者", name: "author", widget: "string", default: "AI 进化指南" }
+      - { label: "分类", name: "category", widget: "select", options: ["大模型", "AI 绘画", "代码助理", "安装工具"] }
+      - { label: "正文内容", name: "body", widget: "markdown" }
+
+  - name: "data"
+    label: "全局数据"
+    files:
+      - label: "AI 工具列表"
+        name: "tools"
+        file: "src/content/data/tools.json"
+        fields:
+          - label: "分类定义"
+            name: "categories"
+            widget: "object"
+            fields:
+              - { label: "中文分类", name: "zh", widget: "list" }
+              - { label: "英文分类", name: "en", widget: "list" }
+          - label: "工具列表"
+            name: "tools"
+            widget: "list"
+            fields:
+              - { label: "ID (唯一)", name: "id", widget: "string" }
+              - { label: "名称", name: "name", widget: "string" }
+              - label: "描述 (多语言)"
+                name: "desc"
+                widget: "object"
+                fields:
+                  - { label: "中文描述", name: "zh", widget: "text" }
+                  - { label: "英文描述", name: "en", widget: "text" }
+              - label: "分类 (多语言)"
+                name: "category"
+                widget: "object"
+                fields:
+                  - { label: "中文分类", name: "zh", widget: "string" }
+                  - { label: "英文分类", name: "en", widget: "string" }
+              - { label: "标签", name: "tags", widget: "list" }
+              - { label: "图标", name: "icon", widget: "select", options: ["Brain", "Download", "Code2", "Image"] }
+              - { label: "官网链接", name: "link", widget: "string" }
+              - { label: "教程路径", name: "tutorial", widget: "string", required: false }
