@@ -4,7 +4,7 @@ date: "2026-03-12 10:30"
 author: "AI 进化指南"
 category: "大模型"
 toolId: "deepseek"
-language: "zh"
+language: "zh, en"
 name: "DeepSeek"
 desc: "国产之光，性能卓越的闭源/开源平衡大模型。"
 tags: ["国产", "对话", "开源"]

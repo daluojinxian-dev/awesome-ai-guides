@@ -4,7 +4,7 @@ date: "2026-03-12 17:00"
 author: "AI 进化指南"
 category: "安装工具"
 toolId: "ollama"
-language: "zh"
+language: "zh, en"
 name: "Ollama"
 desc: "极简的本地大模型运行框架，支持 macOS, Linux 和 Windows，一键下载并运行各类开源模型。"
 tags: ["本地化", "开源", "隐私"]

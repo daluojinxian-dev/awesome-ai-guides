@@ -4,7 +4,7 @@ date: "2026-03-12 14:15"
 author: "AI 进化指南"
 category: "代码助理"
 toolId: "claude"
-language: "zh"
+language: "zh, en"
 name: "Claude 3.5"
 desc: "Anthropic 旗舰模型，凭借惊人的 Artifacts 功能和逻辑推理能力，成为开发者与文案人的新宠。"
 tags: ["Artifacts", "编程", "逻辑"]

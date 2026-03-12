@@ -4,7 +4,7 @@ date: "2026-03-12 17:30"
 author: "AI 进化指南"
 category: "AI 绘画"
 toolId: "flux"
-language: "zh"
+language: "zh, en"
 name: "FLUX.1"
 desc: "由 Black Forest Labs 开发，在文字渲染、人体结构和写实感上全面超越 Midjourney 的开源神作。"
 tags: ["开源绘图", "摄影级", "提示词"]

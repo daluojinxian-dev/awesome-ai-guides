@@ -15,6 +15,13 @@ export default async function HomePage() {
                 const filePath = path.join(tutorialsDir, filename);
                 const fileContent = fs.readFileSync(filePath, "utf8");
                 const { data } = matter(fileContent);
+                
+                // 处理多语言支持：转换为数组
+                const rawLang = data.language || "zh";
+                const languages = Array.isArray(rawLang) 
+                    ? rawLang 
+                    : rawLang.split(",").map((l: string) => l.trim());
+
                 return {
                     id: data.toolId || filename.replace(".md", ""),
                     slug: filename.replace(".md", ""),
@@ -24,17 +31,19 @@ export default async function HomePage() {
                     tags: data.tags || [],
                     icon: data.icon || "",
                     link: data.link || "#",
-                    language: data.language || "zh",
+                    languages: languages, // 传递数组
                     date: data.date || "2026-01-01 00:00"
                 };
             })
-            // 按照时间精确排序 (倒序)
             .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     }
 
-    // 动态提取全部分类 (根据语言)
+    // 动态提取全部分类
     const getCategories = (lang: string) => {
-        const cats = Array.from(new Set(tools.filter(t => t.language === lang).map(t => t.category)));
+        // 只要文章支持该语言，就提取其分类
+        const cats = Array.from(new Set(
+            tools.filter(t => t.languages.includes(lang)).map(t => t.category)
+        ));
         return lang === "zh" ? ["全部", ...cats] : ["All", ...cats];
     };
 

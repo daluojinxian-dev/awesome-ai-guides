@@ -24,7 +24,7 @@ interface ToolData {
   tags: string[];
   icon: string;
   link: string;
-  language: string;
+  languages: string[]; // 数组
   date: string;
 }
 
@@ -54,7 +54,8 @@ export default function HomeClient({
   }, [lang]);
 
   const filteredTools = tools.filter((tool) => {
-    if (tool.language !== lang) return false;
+    // 关键修正：检查数组中是否包含当前语言
+    if (!tool.languages.includes(lang)) return false;
 
     const matchesSearch =
       tool.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -157,7 +158,6 @@ export default function HomeClient({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative">
           <AnimatePresence mode="popLayout" initial={false}>
             {filteredTools.map((tool) => {
-              // 图标回退逻辑：若为空则使用默认 Brain 图标
               const Icon = iconMap[tool.icon] || Brain;
               
               return (

@@ -4,7 +4,7 @@ date: "2026-03-12 15:30"
 author: "AI 进化指南"
 category: "大模型"
 toolId: "kimi"
-language: "zh"
+language: "zh, en"
 name: "Kimi"
 desc: "月之暗面出品，专注于超长上下文处理，支持 200 万字长文本输入，是科研与职场办公的神器。"
 tags: ["长文本", "阅读", "办公"]

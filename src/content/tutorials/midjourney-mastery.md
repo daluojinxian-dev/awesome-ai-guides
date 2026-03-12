@@ -4,7 +4,7 @@ date: "2026-03-12 15:00"
 author: "AI 进化指南"
 category: "AI 绘画"
 toolId: "midjourney"
-language: "zh"
+language: "zh, en"
 name: "Midjourney"
 desc: "全球审美好评度最高的 AI 绘画工具，现已支持 Web 端操作，告别 Discord 的复杂指令。"
 tags: ["绘画", "设计", "摄影"]

@@ -4,7 +4,7 @@ date: "2026-03-12 17:15"
 author: "AI 进化指南"
 category: "代码助理"
 toolId: "cursor"
-language: "zh"
+language: "zh, en"
 name: "Cursor"
 desc: "基于 VS Code 构建的 AI 编程神器，深度整合 Claude 3.5，支持全局工程理解与一键代码生成。"
 tags: ["IDE", "AI 编程", "生产力"]

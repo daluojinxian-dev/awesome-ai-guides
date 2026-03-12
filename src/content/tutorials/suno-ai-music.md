@@ -4,7 +4,7 @@ date: "2026-03-12 16:20"
 author: "AI 进化指南"
 category: "AI 音乐"
 toolId: "suno"
-language: "zh"
+language: "zh, en"
 name: "Suno"
 desc: "音乐界的 Midjourney。只需一段文字描述，即可生成长达 4 分钟的高保真完整歌曲。"
 tags: ["音乐", "作曲", "娱乐"]
