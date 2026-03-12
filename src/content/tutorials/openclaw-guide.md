@@ -3,6 +3,8 @@ title: "OpenClaw 实战指南：打造你的私有化 AI 智能体"
 date: "2026-03-06"
 author: "AI 进化指南"
 category: "智能体"
+toolId: "openclaw"
+language: "zh"
 ---
 
 # OpenClaw 实战指南：打造你的私有化 AI 智能体

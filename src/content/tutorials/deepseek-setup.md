@@ -3,6 +3,8 @@ title: "DeepSeek 搭建指南：如何在本机流畅运行极致性能的大模
 date: "2026-03-05"
 author: "AI 进化指南"
 category: "大模型"
+toolId: "deepseek"
+language: "zh"
 ---
 
 # DeepSeek 搭建指南：如何在本机流畅运行极致性能的大模型

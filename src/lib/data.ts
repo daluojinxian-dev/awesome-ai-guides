@@ -47,8 +47,7 @@ export const AI_TOOLS = [
         },
         tags: ["国产", "对话", "开源"],
         icon: "Brain",
-        link: "https://www.deepseek.com",
-        tutorial: "/tutorials/deepseek-setup"
+        link: "https://www.deepseek.com"
     },
     {
         id: "openclaw",
@@ -63,8 +62,7 @@ export const AI_TOOLS = [
         },
         tags: ["Agent", "开源", "自动化"],
         icon: "Download",
-        link: "https://openclaw.ai",
-        tutorial: "/tutorials/openclaw-guide"
+        link: "https://openclaw.ai"
     },
     {
         id: "ollama",
@@ -79,8 +77,7 @@ export const AI_TOOLS = [
         },
         tags: ["本地化", "简单", "开源"],
         icon: "Download",
-        link: "https://ollama.com",
-        tutorial: "/tutorials/ollama-guide"
+        link: "https://ollama.com"
     },
     {
         id: "cursor",
