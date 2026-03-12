@@ -1,10 +1,15 @@
 ---
 title: "OpenClaw 实战指南：打造你的私有化 AI 智能体"
-date: "2026-03-06"
+date: "2026-03-12 11:45"
 author: "AI 进化指南"
-category: "智能体"
+category: "安装工具"
 toolId: "openclaw"
 language: "zh"
+name: "OpenClaw"
+desc: "强大的私有化 AI 智能体网关，连接各种社交平台并执行自动化任务。"
+tags: ["Agent", "开源", "自动化"]
+icon: ""
+link: "https://openclaw.ai"
 ---
 
 # OpenClaw 实战指南：打造你的私有化 AI 智能体

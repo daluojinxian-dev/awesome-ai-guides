@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { AI_TOOLS, CATEGORIES, TRANSLATIONS } from "@/lib/data";
+import { TRANSLATIONS } from "@/lib/data";
 import { Search, ExternalLink, BookOpen, Brain, Download, Code2, Image as ImageIcon, Languages, Sun, Moon, Monitor } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "next-themes";
@@ -15,13 +15,26 @@ const iconMap: Record<string, any> = {
   Image: ImageIcon,
 };
 
-interface TutorialMetadata {
+interface ToolData {
+  id: string;
   slug: string;
-  toolId: string;
+  name: string;
+  desc: string;
+  category: string;
+  tags: string[];
+  icon: string;
+  link: string;
   language: string;
+  date: string;
 }
 
-export default function HomeClient({ tutorials }: { tutorials: TutorialMetadata[] }) {
+export default function HomeClient({ 
+    tools, 
+    categoriesData 
+}: { 
+    tools: ToolData[], 
+    categoriesData: { zh: string[], en: string[] } 
+}) {
   const [lang, setLang] = useState<"zh" | "en">("zh");
   const [searchQuery, setSearchQuery] = useState("");
   const { theme, setTheme } = useTheme();
@@ -31,30 +44,28 @@ export default function HomeClient({ tutorials }: { tutorials: TutorialMetadata[
   useEffect(() => setMounted(true), []);
 
   const t = TRANSLATIONS[lang];
-  const currentCategories = CATEGORIES[lang];
+  const currentCategories = categoriesData[lang];
 
-  const [activeCategory, setActiveCategory] = useState(TRANSLATIONS[lang].all);
+  const [activeCategory, setActiveCategory] = useState(t.all);
 
-  const filteredTools = AI_TOOLS.filter((tool) => {
-    const desc = tool.desc[lang];
-    const category = tool.category[lang];
+  // 语言切换时重置分类
+  useEffect(() => {
+    setActiveCategory(TRANSLATIONS[lang].all);
+  }, [lang]);
+
+  const filteredTools = tools.filter((tool) => {
+    if (tool.language !== lang) return false;
+
     const matchesSearch =
       tool.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      desc.toLowerCase().includes(searchQuery.toLowerCase());
+      tool.desc.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesCategory = activeCategory === t.all || category === activeCategory;
+    const matchesCategory = activeCategory === t.all || tool.category === activeCategory;
     return matchesSearch && matchesCategory;
   });
 
   const toggleLang = () => {
-    const nextLang = lang === "zh" ? "en" : "zh";
-    const currentIndex = CATEGORIES[lang].indexOf(activeCategory);
-    setLang(nextLang);
-    if (currentIndex !== -1) {
-      setActiveCategory(CATEGORIES[nextLang][currentIndex]);
-    } else {
-      setActiveCategory(TRANSLATIONS[nextLang].all);
-    }
+    setLang(lang === "zh" ? "en" : "zh");
   };
 
   const cycleTheme = () => {
@@ -146,11 +157,9 @@ export default function HomeClient({ tutorials }: { tutorials: TutorialMetadata[
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative">
           <AnimatePresence mode="popLayout" initial={false}>
             {filteredTools.map((tool) => {
+              // 图标回退逻辑：若为空则使用默认 Brain 图标
               const Icon = iconMap[tool.icon] || Brain;
-              const associatedTutorial = tutorials.find(
-                (tut) => tut.toolId === tool.id && tut.language === lang
-              );
-
+              
               return (
                 <motion.div
                   key={tool.id}
@@ -181,11 +190,11 @@ export default function HomeClient({ tutorials }: { tutorials: TutorialMetadata[
                   <h3 className="text-xl font-semibold mb-2 flex items-center gap-2">
                     {tool.name}
                     <span className="text-[10px] px-2 py-0.5 rounded-full bg-border text-muted font-normal">
-                      {tool.category[lang]}
+                      {tool.category}
                     </span>
                   </h3>
                   <p className="text-muted text-sm mb-6 flex-grow leading-relaxed">
-                    {tool.desc[lang]}
+                    {tool.desc}
                   </p>
 
                   <div className="flex items-center justify-between mt-auto pt-4 border-t border-border/50">
@@ -194,14 +203,10 @@ export default function HomeClient({ tutorials }: { tutorials: TutorialMetadata[
                         <span key={tag} className="text-[10px] text-muted bg-primary/5 px-2 py-0.5 rounded border border-border/30">#{tag}</span>
                       ))}
                     </div>
-                    {associatedTutorial ? (
-                      <Link href={`/tutorials/${associatedTutorial.slug}`} className="flex items-center gap-2 text-sm text-primary hover:text-secondary transition-colors font-medium group/btn">
-                        <BookOpen className="w-4 h-4" />
-                        {t.viewTutorial}
-                      </Link>
-                    ) : (
-                      <span className="text-[10px] text-muted/60 italic">{t.preparing}</span>
-                    )}
+                    <Link href={`/tutorials/${tool.slug}`} className="flex items-center gap-2 text-sm text-primary hover:text-secondary transition-colors font-medium group/btn">
+                      <BookOpen className="w-4 h-4" />
+                      {t.viewTutorial}
+                    </Link>
                   </div>
                 </motion.div>
               );

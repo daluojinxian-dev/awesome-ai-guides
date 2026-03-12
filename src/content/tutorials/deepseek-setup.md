@@ -1,10 +1,15 @@
 ---
 title: "DeepSeek 搭建指南：如何在本机流畅运行极致性能的大模型"
-date: "2026-03-05"
+date: "2026-03-12 10:30"
 author: "AI 进化指南"
 category: "大模型"
 toolId: "deepseek"
 language: "zh"
+name: "DeepSeek"
+desc: "国产之光，性能卓越的闭源/开源平衡大模型。"
+tags: ["国产", "对话", "开源"]
+icon: "Brain"
+link: "https://www.deepseek.com"
 ---
 
 # DeepSeek 搭建指南：如何在本机流畅运行极致性能的大模型
