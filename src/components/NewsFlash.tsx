@@ -17,9 +17,18 @@ export default function NewsFlash() {
 
     useEffect(() => {
         fetch("/data/news.json")
-            .then(res => res.json())
-            .then(data => setNews(data))
-            .catch(err => console.error("Failed to fetch news", err));
+            .then(res => {
+                if (!res.ok) throw new Error("File not found");
+                return res.json();
+            })
+            .then(data => {
+                if (Array.isArray(data)) setNews(data);
+            })
+            .catch(err => {
+                console.warn("Failed to fetch news, using fallback local data", err);
+                // 默认占位数据，防止界面完全空白
+                setNews([{ id: 0, title: "正在连接 AI 资讯中心...", url: "#", time: "Now" }]);
+            });
     }, []);
 
     useEffect(() => {
