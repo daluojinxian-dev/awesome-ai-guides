@@ -77,43 +77,60 @@ export default function LabClient({ initialPrompts }: { initialPrompts: LabPromp
         </div>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <AnimatePresence mode="popLayout">
-          {filteredPrompts.map((prompt) => (
-            <motion.div
-              layout
-              key={prompt.id}
-              initial={{ opacity: 0, y: 20 }}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative min-h-[500px] items-start">
+        <AnimatePresence mode="wait">
+          {filteredPrompts.length > 0 ? (
+            <motion.div 
+              key={activeCategory + searchQuery}
+              initial={{ opacity: 0, y: 5 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              onClick={() => setSelectedPrompt(prompt)}
-              className={`
-                group cursor-pointer p-6 rounded-2xl border transition-all duration-300 flex flex-col h-full
-                ${selectedPrompt?.id === prompt.id 
-                  ? "bg-primary/5 border-primary shadow-2xl" 
-                  : "bg-card border-border hover:border-primary/30 shadow-xl hover:shadow-primary/5"}
-              `}
+              exit={{ opacity: 0, y: -5 }}
+              transition={{ duration: 0.15 }}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 col-span-full"
             >
-              <div className="flex items-center justify-between mb-4">
-                <div className="px-2 py-0.5 rounded-md bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider">
-                  {prompt.category}
-                </div>
-                <Zap className={`w-4 h-4 transition-colors ${selectedPrompt?.id === prompt.id ? "text-primary fill-primary" : "text-muted group-hover:text-primary"}`} />
-              </div>
-              <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">{prompt.title}</h3>
-              <p className="text-sm text-muted mb-6 flex-grow">{prompt.desc}</p>
-              <div className="flex items-center gap-2 text-xs font-bold text-primary group-hover:underline">
-                {t.labConfigure} <ArrowLeft className="w-3 h-3 rotate-180" />
-              </div>
+              {filteredPrompts.map((prompt) => (
+                <motion.div
+                  key={prompt.id}
+                  whileHover={{ y: -5 }}
+                  onClick={() => setSelectedPrompt(prompt)}
+                  className={`
+                    group cursor-pointer p-6 rounded-2xl border transition-all duration-300 flex flex-col h-full
+                    ${selectedPrompt?.id === prompt.id 
+                      ? "bg-primary/5 border-primary shadow-2xl" 
+                      : "bg-card border-border hover:border-primary/30 shadow-xl hover:shadow-primary/5"}
+                  `}
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="px-2 py-0.5 rounded-md bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider">
+                      {prompt.category}
+                    </div>
+                    <Zap className={`w-4 h-4 transition-colors ${selectedPrompt?.id === prompt.id ? "text-primary fill-primary" : "text-muted group-hover:text-primary"}`} />
+                  </div>
+                  <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">{prompt.title}</h3>
+                  <p className="text-sm text-muted mb-6 flex-grow">{prompt.desc}</p>
+                  <div className="flex items-center gap-2 text-xs font-bold text-primary group-hover:underline">
+                    {t.labConfigure} <ArrowLeft className="w-3 h-3 rotate-180" />
+                  </div>
+                </motion.div>
+              ))}
             </motion.div>
-          ))}
+          ) : (
+            <motion.div 
+              key="empty"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 flex items-center justify-center text-muted col-span-full pt-20"
+            >
+              <p className="text-lg">{t.labEmpty}</p>
+            </motion.div>
+          )}
         </AnimatePresence>
       </div>
 
       <AnimatePresence>
         {selectedPrompt && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6">
-            {/* 灵感遮罩：通透的磨砂质感，让焦点完全集中 */}
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -122,7 +139,6 @@ export default function LabClient({ initialPrompts }: { initialPrompts: LabPromp
               className="absolute inset-0 bg-background/70 backdrop-blur-2xl"
             />
             
-            {/* 居中悬浮实验室卡片 */}
             <motion.div 
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -130,7 +146,6 @@ export default function LabClient({ initialPrompts }: { initialPrompts: LabPromp
               transition={{ type: "spring", damping: 25, stiffness: 250 }}
               className="w-full max-w-4xl bg-card border border-primary/20 shadow-[0_32px_128px_-10px_rgba(0,0,0,0.3)] rounded-[2.5rem] relative z-10 flex flex-col h-full max-h-[85vh] overflow-hidden"
             >
-                {/* 顶部标题栏：带有特殊的渐变背景以增加层次感 */}
                 <div className="p-6 md:p-10 border-b border-border/50 flex items-center justify-between bg-card/50 backdrop-blur-md relative">
                   <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
                   <div>
@@ -151,12 +166,10 @@ export default function LabClient({ initialPrompts }: { initialPrompts: LabPromp
                   </button>
                 </div>
 
-                {/* 内容配置区：深色衬托提升专注度 */}
                 <div className="flex-grow overflow-y-auto p-6 md:px-10 md:py-8 custom-scrollbar bg-background/20">
                   <PromptBox content={selectedPrompt.content} />
                 </div>
 
-                {/* 底部装饰 */}
                 <div className="px-10 py-4 bg-muted/30 text-[10px] text-muted text-center font-mono opacity-40 uppercase tracking-[0.3em]">
                   Focused Interaction / AI Evolution Lab
                 </div>
@@ -164,12 +177,6 @@ export default function LabClient({ initialPrompts }: { initialPrompts: LabPromp
           </div>
         )}
       </AnimatePresence>
-
-      {filteredPrompts.length === 0 && (
-        <div className="text-center py-24 text-muted">
-          <p className="text-lg">{t.labEmpty}</p>
-        </div>
-      )}
     </main>
   );
 }
