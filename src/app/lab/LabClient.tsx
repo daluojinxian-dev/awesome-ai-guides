@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Zap, Filter, ArrowLeft, BookMarked, Sparkles } from "lucide-react";
+import { Search, Zap, Filter, ArrowLeft, BookMarked, Sparkles, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import PromptBox from "@/components/PromptBox";
 import Link from "next/link";
@@ -108,29 +108,55 @@ export default function LabClient({ initialPrompts }: { initialPrompts: LabPromp
 
       <AnimatePresence>
         {selectedPrompt && (
-          <motion.div 
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 40 }}
-            className="fixed inset-x-0 bottom-0 z-[100] p-6 pointer-events-none"
-          >
-            <div className="max-w-4xl mx-auto glass-card-solid border-primary/30 shadow-2xl p-8 rounded-3xl pointer-events-auto relative overflow-hidden">
-                <button 
-                  onClick={() => setSelectedPrompt(null)}
-                  className="absolute top-4 right-4 p-2 hover:bg-primary/10 rounded-full transition-colors"
-                >
-                  <ArrowLeft className="w-5 h-5 rotate-90" />
-                </button>
-                <div className="mb-8">
-                  <h2 className="text-2xl font-bold mb-2 flex items-center gap-3">
-                    <Sparkles className="w-6 h-6 text-primary animate-pulse" />
-                    正在配置：{selectedPrompt.title}
-                  </h2>
-                  <p className="text-muted text-sm">{selectedPrompt.desc}</p>
+          <div className="fixed inset-0 z-[100] flex justify-end">
+            {/* 更加科技感的遮罩：背景模糊 + 主题色柔化 */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedPrompt(null)}
+              className="absolute inset-0 bg-background/40 backdrop-blur-xl transition-all"
+            />
+            
+            {/* 侧边抽屉面板 */}
+            <motion.div 
+              initial={{ x: "100%", opacity: 0.5 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: "100%", opacity: 0.5 }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="w-full max-w-2xl bg-card border-l border-border shadow-[-20px_0_50px_rgba(0,0,0,0.1)] relative z-10 flex flex-col h-full"
+            >
+                {/* 面板头部 */}
+                <div className="p-6 md:p-8 border-b border-border/50 flex items-start justify-between bg-card/80 backdrop-blur-md sticky top-0 z-20">
+                  <div>
+                    <div className="inline-flex items-center gap-2 px-2 py-0.5 rounded-md bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider mb-2">
+                      {selectedPrompt.category}
+                    </div>
+                    <h2 className="text-xl md:text-2xl font-bold mb-1 flex items-center gap-3">
+                      <Sparkles className="w-5 h-5 text-primary" />
+                      {selectedPrompt.title}
+                    </h2>
+                    <p className="text-muted text-xs md:text-sm">{selectedPrompt.desc}</p>
+                  </div>
+                  <button 
+                    onClick={() => setSelectedPrompt(null)}
+                    className="p-2 hover:bg-primary/10 rounded-full transition-all hover:rotate-90"
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
                 </div>
-                <PromptBox content={selectedPrompt.content} />
-            </div>
-          </motion.div>
+
+                {/* 配置区域 - 自带滚动且不限制高度 */}
+                <div className="flex-grow overflow-y-auto p-6 md:p-8 custom-scrollbar bg-background/30">
+                  <PromptBox content={selectedPrompt.content} />
+                </div>
+
+                {/* 面板底部装饰（可选） */}
+                <div className="p-4 border-t border-border/30 bg-card/50 text-[10px] text-muted text-center font-mono opacity-50 uppercase tracking-[0.2em]">
+                  Prompt Laboratory / Template Configuration
+                </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
 
