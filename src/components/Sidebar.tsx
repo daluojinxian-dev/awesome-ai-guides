@@ -74,7 +74,7 @@ function SidebarContent() {
             const isActive = item.active;
             return (
               <Link
-                key={item.name}
+                key={item.href}
                 href={item.href}
                 onClick={() => setIsOpen(false)}
                 className={`

@@ -2,8 +2,12 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Clipboard, Check, Zap, Edit3 } from "lucide-react";
+import { useLanguage } from "./LanguageProvider";
+import { TRANSLATIONS } from "@/lib/data";
 
 export default function PromptBox({ content }: { content: string }) {
+  const { lang } = useLanguage();
+  const t = TRANSLATIONS[lang];
   const [copied, setCopied] = useState(false);
   const [variables, setVariables] = useState<Record<string, string>>({});
   const [placeholders, setPlaceholders] = useState<string[]>([]);
@@ -52,7 +56,7 @@ export default function PromptBox({ content }: { content: string }) {
         <div className="absolute top-0 right-0 p-4">
           <button onClick={copy} className="flex items-center gap-2 rounded-lg bg-card px-3 py-1.5 text-xs font-medium text-primary shadow-sm border border-border">
             {copied ? <Check className="w-3.5 h-3.5" /> : <Clipboard className="w-3.5 h-3.5" />}
-            {copied ? "已复制" : "复制提示词"}
+            {copied ? t.promptCopied : t.promptCopy}
           </button>
         </div>
         <div className="mb-4 flex items-center gap-2 text-primary">
@@ -69,14 +73,14 @@ export default function PromptBox({ content }: { content: string }) {
       <div className="bg-primary/5 px-6 py-4 border-b border-border flex items-center justify-between">
         <div className="flex items-center gap-2 text-primary">
           <Zap className="w-5 h-5 fill-primary" />
-          <span className="text-xs font-bold tracking-widest uppercase">Prompt Laboratory (Template)</span>
+          <span className="text-xs font-bold tracking-widest uppercase">{t.promptConfigTitle}</span>
         </div>
         <button
           onClick={copy}
           className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-xs font-bold text-white shadow-lg shadow-primary/20 transition-all hover:scale-105 active:scale-95"
         >
           {copied ? <Check className="w-4 h-4" /> : <Clipboard className="w-4 h-4" />}
-          {copied ? "已复制生成内容" : "复制最终 Prompt"}
+          {copied ? t.promptCopied : t.promptConfigFinal}
         </button>
       </div>
 
@@ -86,10 +90,10 @@ export default function PromptBox({ content }: { content: string }) {
             <div key={key} className="space-y-2">
               <label className="text-[10px] font-bold text-muted uppercase flex items-center gap-1.5">
                 <Edit3 className="w-3 h-3" />
-                设置变量: {key}
+                {t.promptSetVar}{key}
               </label>
               <textarea
-                placeholder={`请输入${key}内容（支持多行粘贴，保留代码格式）...`}
+                placeholder={`${lang === "zh" ? "请输入" : "Please enter "}${key}${t.promptInputPlaceholder}`}
                 rows={3}
                 className="w-full bg-primary/5 border border-border rounded-lg px-3 py-3 text-sm font-mono outline-none focus:border-primary/50 transition-colors resize-y min-h-[80px]"
                 value={variables[key]}
@@ -100,7 +104,7 @@ export default function PromptBox({ content }: { content: string }) {
         </div>
 
         <div className="relative">
-          <div className="text-[10px] font-bold text-muted uppercase mb-2">预览生成结果</div>
+          <div className="text-[10px] font-bold text-muted uppercase mb-2">{t.promptPreviewTitle}</div>
           <div className="p-4 rounded-xl bg-mesh border border-dashed border-border/50 font-mono text-xs text-muted/80 whitespace-pre-wrap leading-relaxed max-h-[300px] overflow-y-auto">
             {getFinalContent()}
           </div>

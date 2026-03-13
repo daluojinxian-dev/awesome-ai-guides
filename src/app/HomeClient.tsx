@@ -249,9 +249,9 @@ function HomeClientContent({
                             Series Roadmap
                         </div>
                         <h3 className="text-3xl font-bold mb-4">{name}</h3>
-                        <p className="text-muted mb-8 max-w-sm">包含 {data.count} 篇深度教程，按部就班带你从入门到精通。</p>
+                        <p className="text-muted mb-8 max-w-sm">{lang === "zh" ? "包含 " : "Contains "}{data.count}{t.roadmapDesc}</p>
                         <Link href={`/tutorials/${data.firstSlug}`} className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-xl font-bold hover:bg-primary/80 transition-all shadow-xl shadow-primary/20 group/link">
-                            开始进化之旅
+                            {t.roadmapStart}
                             <ArrowRight className="w-4 h-4 group-hover/link:translate-x-1 transition-transform" />
                         </Link>
                     </div>
@@ -339,8 +339,8 @@ function HomeClientContent({
               <Search className="w-12 h-12 text-muted/30" />
             </div>
             <p className="text-lg">
-              {activeCategory === favLabel ? "您还没有收藏任何工具哦，快去点个小爱心吧！" : t.noResults}
-              {activeCategory === roadmapLabel && "暂无路线图..."}
+              {activeCategory === favLabel ? t.favEmpty : t.noResults}
+              {activeCategory === roadmapLabel && t.roadmapEmpty}
             </p>
           </div>
         )}
@@ -354,7 +354,7 @@ function HomeClientContent({
           </div>
           <div className="bg-border/30 px-8 py-3 rounded-lg text-[10px] text-muted uppercase tracking-widest border border-dashed border-border flex items-center gap-2 group hover:border-primary/30 transition-colors">
             <span className="w-2 h-2 rounded-full bg-primary/40 animate-pulse group-hover:bg-primary/60" />
-            Advertisement Space
+            {t.adSpace}
           </div>
           <div className="flex gap-6">
             <Link href="/privacy" className="text-muted hover:text-primary transition-colors text-sm underline-offset-4 hover:underline">{t.privacy}</Link>

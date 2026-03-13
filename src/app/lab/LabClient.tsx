@@ -5,6 +5,8 @@ import { Search, Zap, Filter, ArrowLeft, BookMarked, Sparkles, X } from "lucide-
 import { motion, AnimatePresence } from "framer-motion";
 import PromptBox from "@/components/PromptBox";
 import Link from "next/link";
+import { useLanguage } from "@/components/LanguageProvider";
+import { TRANSLATIONS } from "@/lib/data";
 
 interface LabPrompt {
   id: string;
@@ -15,16 +17,18 @@ interface LabPrompt {
 }
 
 export default function LabClient({ initialPrompts }: { initialPrompts: LabPrompt[] }) {
+  const { lang } = useLanguage();
+  const t = TRANSLATIONS[lang];
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeCategory, setActiveCategory] = useState("全部");
+  const [activeCategory, setActiveCategory] = useState(t.labAll);
   const [selectedPrompt, setSelectedPrompt] = useState<LabPrompt | null>(null);
 
-  const categories = ["全部", ...Array.from(new Set(initialPrompts.map(p => p.category)))];
+  const categories = [t.labAll, ...Array.from(new Set(initialPrompts.map(p => p.category)))];
 
   const filteredPrompts = initialPrompts.filter(p => {
     const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                          p.desc.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCat = activeCategory === "全部" || p.category === activeCategory;
+    const matchesCat = activeCategory === t.labAll || p.category === activeCategory;
     return matchesSearch && matchesCat;
   });
 
@@ -40,9 +44,9 @@ export default function LabClient({ initialPrompts }: { initialPrompts: LabPromp
               <Sparkles className="w-3 h-3" />
               AI Prompt Laboratory
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight">提示词实验室</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight">{t.labTitle}</h1>
             <p className="text-muted text-lg max-w-xl">
-                预设专业级 AI 交互模版，填入变量即可获得最优结果。不再为“怎么写 Prompt”而烦恼。
+                {t.labSubtitle}
             </p>
           </motion.div>
           
@@ -50,7 +54,7 @@ export default function LabClient({ initialPrompts }: { initialPrompts: LabPromp
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted group-focus-within:text-primary transition-colors" />
             <input 
               type="text" 
-              placeholder="搜索模版..."
+              placeholder={t.labSearchPlaceholder}
               className="w-full bg-card/50 border border-border rounded-xl pl-11 pr-4 py-3 outline-none focus:border-primary/50 transition-all text-sm"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -99,7 +103,7 @@ export default function LabClient({ initialPrompts }: { initialPrompts: LabPromp
               <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">{prompt.title}</h3>
               <p className="text-sm text-muted mb-6 flex-grow">{prompt.desc}</p>
               <div className="flex items-center gap-2 text-xs font-bold text-primary group-hover:underline">
-                立即配置模板 <ArrowLeft className="w-3 h-3 rotate-180" />
+                {t.labConfigure} <ArrowLeft className="w-3 h-3 rotate-180" />
               </div>
             </motion.div>
           ))}
@@ -135,7 +139,7 @@ export default function LabClient({ initialPrompts }: { initialPrompts: LabPromp
                     </div>
                     <h2 className="text-xl md:text-3xl font-bold mb-1 flex items-center gap-3">
                       <Sparkles className="w-6 h-6 text-primary" />
-                      {selectedPrompt.title}
+                      {t.labCurrentConfig}{selectedPrompt.title}
                     </h2>
                     <p className="text-muted text-sm md:text-base opacity-80">{selectedPrompt.desc}</p>
                   </div>
@@ -163,7 +167,7 @@ export default function LabClient({ initialPrompts }: { initialPrompts: LabPromp
 
       {filteredPrompts.length === 0 && (
         <div className="text-center py-24 text-muted">
-          <p className="text-lg">未找到相关模版，换个词试试？</p>
+          <p className="text-lg">{t.labEmpty}</p>
         </div>
       )}
     </main>
