@@ -10,6 +10,8 @@ desc: "国产之光，性能卓越的闭源/开源平衡大模型。"
 tags: ["国产", "对话", "开源"]
 icon: "Brain"
 link: "https://www.deepseek.com"
+roadmap: "DeepSeek 本地部署全攻略"
+order: 2
 ---
 
 # DeepSeek 搭建指南：如何在本机流畅运行极致性能的大模型

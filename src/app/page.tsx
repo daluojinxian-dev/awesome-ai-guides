@@ -6,6 +6,7 @@ import HomeClient from "./HomeClient";
 export default async function HomePage() {
     const tutorialsDir = path.join(process.cwd(), "src/content/tutorials");
     let tools: any[] = [];
+    let roadmaps: Record<string, { count: number, firstSlug: string }> = {};
 
     if (fs.existsSync(tutorialsDir)) {
         const filenames = fs.readdirSync(tutorialsDir);
@@ -16,13 +17,13 @@ export default async function HomePage() {
                 const fileContent = fs.readFileSync(filePath, "utf8");
                 const { data } = matter(fileContent);
                 
-                // 处理多语言支持：转换为数组
+                // 处理多语言支持
                 const rawLang = data.language || "zh";
                 const languages = Array.isArray(rawLang) 
                     ? rawLang 
                     : rawLang.split(",").map((l: string) => l.trim());
 
-                return {
+                const tool = {
                     id: data.toolId || filename.replace(".md", ""),
                     slug: filename.replace(".md", ""),
                     name: data.name || data.title,
@@ -31,16 +32,31 @@ export default async function HomePage() {
                     tags: data.tags || [],
                     icon: data.icon || "",
                     link: data.link || "#",
-                    languages: languages, // 传递数组
-                    date: data.date || "2026-01-01 00:00"
+                    languages: languages,
+                    date: data.date || "2026-01-01 00:00",
+                    roadmap: data.roadmap || null,
+                    order: data.order || 0
                 };
+
+                // 统计路线图
+                if (tool.roadmap) {
+                    if (!roadmaps[tool.roadmap]) {
+                        roadmaps[tool.roadmap] = { count: 0, firstSlug: "" };
+                    }
+                    roadmaps[tool.roadmap].count++;
+                    // 如果是第一篇，记录 slug 用于快速跳转
+                    if (tool.order === 1) {
+                        roadmaps[tool.roadmap].firstSlug = tool.slug;
+                    }
+                }
+
+                return tool;
             })
             .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     }
 
-    // 动态提取全部分类
+    // 动态提取分类
     const getCategories = (lang: string) => {
-        // 只要文章支持该语言，就提取其分类
         const cats = Array.from(new Set(
             tools.filter(t => t.languages.includes(lang)).map(t => t.category)
         ));
@@ -52,5 +68,5 @@ export default async function HomePage() {
         en: getCategories("en")
     };
 
-    return <HomeClient tools={tools} categoriesData={categories} />;
+    return <HomeClient tools={tools} categoriesData={categories} roadmapData={roadmaps} />;
 }

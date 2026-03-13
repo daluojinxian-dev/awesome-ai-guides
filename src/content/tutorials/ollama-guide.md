@@ -10,6 +10,8 @@ desc: "极简的本地大模型运行框架，支持 macOS, Linux 和 Windows，
 tags: ["本地化", "开源", "隐私"]
 icon: "Download"
 link: "https://ollama.com"
+roadmap: "DeepSeek 本地部署全攻略"
+order: 1
 ---
 
 # Ollama 入门教程：在本地电脑运行 DeepSeek 与 Llama 3

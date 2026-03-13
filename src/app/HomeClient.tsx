@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { TRANSLATIONS } from "@/lib/data";
-import { Search, ExternalLink, BookOpen, Brain, Download, Code2, Image as ImageIcon, Languages, Sun, Moon, Monitor, Heart } from "lucide-react";
+import { Search, ExternalLink, BookOpen, Brain, Download, Code2, Image as ImageIcon, Languages, Sun, Moon, Monitor, Heart, Compass, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "next-themes";
 import NewsFlash from "@/components/NewsFlash";
@@ -26,14 +26,18 @@ interface ToolData {
   link: string;
   languages: string[];
   date: string;
+  roadmap?: string;
+  order?: number;
 }
 
 export default function HomeClient({ 
     tools, 
-    categoriesData 
+    categoriesData,
+    roadmapData
 }: { 
     tools: ToolData[], 
-    categoriesData: { zh: string[], en: string[] } 
+    categoriesData: { zh: string[], en: string[] },
+    roadmapData: Record<string, { count: number, firstSlug: string }>
 }) {
   const [lang, setLang] = useState<"zh" | "en">("zh");
   const [searchQuery, setSearchQuery] = useState("");
@@ -55,9 +59,9 @@ export default function HomeClient({
   }, []);
 
   const t = TRANSLATIONS[lang];
-  // 注入“我的收藏”分类
   const favLabel = lang === "zh" ? "我的收藏" : "Favorites";
-  const currentCategories = [favLabel, ...categoriesData[lang]];
+  const roadmapLabel = lang === "zh" ? "进化路线图" : "Roadmaps";
+  const currentCategories = [roadmapLabel, favLabel, ...categoriesData[lang]];
 
   const [activeCategory, setActiveCategory] = useState(t.all);
 
@@ -83,9 +87,15 @@ export default function HomeClient({
       tool.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       tool.desc.toLowerCase().includes(searchQuery.toLowerCase());
 
-    // 处理特殊分类：我的收藏
     if (activeCategory === favLabel) {
       return matchesSearch && favorites.includes(tool.id);
+    }
+    
+    // 路线图标签页显示所有属于任何路线图且 order=1 的入口文章，或者全部属于该路线图的文章
+    // 为了简单起见，如果是在“路线图”分类，我们展示路线图聚合卡片（通过特殊逻辑处理）
+    // 这里我们先过滤掉非该路线图的内容
+    if (activeCategory === roadmapLabel) {
+      return matchesSearch && tool.roadmap !== null;
     }
 
     const matchesCategory = activeCategory === t.all || tool.category === activeCategory;
@@ -174,11 +184,12 @@ export default function HomeClient({
             className={`px-6 py-2 rounded-full border transition-all duration-300 transform active:scale-95 ${activeCategory === cat
               ? "bg-primary border-primary text-white shadow-lg shadow-primary/30"
               : "border-border bg-card/30 text-muted hover:border-primary/40 hover:text-primary hover:bg-card/50"
-              } ${cat === favLabel && favorites.length > 0 ? "relative" : ""}`}
+              } ${cat === favLabel && favorites.length > 0 ? "relative" : ""} ${cat === roadmapLabel ? "flex items-center gap-2" : ""}`}
           >
+            {cat === roadmapLabel && <Compass className="w-4 h-4" />}
             {cat}
             {cat === favLabel && favorites.length > 0 && (
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-accent text-[10px] flex items-center justify-center rounded-full text-white animate-bounce-subtle">
+              <span className="absolute -top-1 -right-1 w-4 h-4 bg-accent text-[10px] flex items-center justify-center rounded-full text-white">
                 {favorites.length}
               </span>
             )}
@@ -187,6 +198,35 @@ export default function HomeClient({
       </div>
 
       <section className="max-w-7xl mx-auto px-6 pb-24">
+        {/* 如果是路线图视角，先展示路线图聚合卡片 */}
+        {activeCategory === roadmapLabel && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+            {Object.entries(roadmapData).map(([name, data]) => (
+                <motion.div
+                    key={name}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="p-8 rounded-3xl bg-gradient-to-br from-primary/10 to-accent/10 border border-primary/20 relative overflow-hidden group"
+                >
+                    <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <Compass className="w-32 h-32 text-primary" />
+                    </div>
+                    <div className="relative z-10">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 text-primary text-[10px] font-bold uppercase tracking-widest mb-4">
+                            Series Roadmap
+                        </div>
+                        <h3 className="text-3xl font-bold mb-4">{name}</h3>
+                        <p className="text-muted mb-8 max-w-sm">包含 {data.count} 篇深度教程，按部就班带你从入门到精通。</p>
+                        <Link href={`/tutorials/${data.firstSlug}`} className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-xl font-bold hover:bg-primary/80 transition-all shadow-xl shadow-primary/20 group/link">
+                            开始进化之旅
+                            <ArrowRight className="w-4 h-4 group-hover/link:translate-x-1 transition-transform" />
+                        </Link>
+                    </div>
+                </motion.div>
+            ))}
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative">
           <AnimatePresence mode="popLayout" initial={false}>
             {filteredTools.map((tool) => {
@@ -244,10 +284,15 @@ export default function HomeClient({
                         <span key={tag} className="text-[10px] text-muted bg-primary/5 px-2 py-0.5 rounded border border-border/30">#{tag}</span>
                       ))}
                     </div>
-                    <Link href={`/tutorials/${tool.slug}`} className="flex items-center gap-2 text-sm text-primary hover:text-secondary transition-colors font-medium group/btn">
-                      <BookOpen className="w-4 h-4" />
-                      {t.viewTutorial}
-                    </Link>
+                    <div className="flex flex-col items-end gap-1">
+                        {tool.roadmap && (
+                            <span className="text-[9px] text-primary/60 font-medium">#{tool.roadmap} Step {tool.order}</span>
+                        )}
+                        <Link href={`/tutorials/${tool.slug}`} className="flex items-center gap-2 text-sm text-primary hover:text-secondary transition-colors font-medium group/btn">
+                            <BookOpen className="w-4 h-4" />
+                            {t.viewTutorial}
+                        </Link>
+                    </div>
                   </div>
                 </motion.div>
               );
@@ -262,6 +307,7 @@ export default function HomeClient({
             </div>
             <p className="text-lg">
               {activeCategory === favLabel ? "您还没有收藏任何工具哦，快去点个小爱心吧！" : t.noResults}
+              {activeCategory === roadmapLabel && "暂无路线图..."}
             </p>
           </div>
         )}
