@@ -62,29 +62,19 @@ function HomeClientContent({
   const roadmapLabel = lang === "zh" ? "进化路线图" : "Roadmaps";
   const currentCategories = [roadmapLabel, favLabel, ...categoriesData[lang]];
 
-  const [activeCategory, setActiveCategory] = useState(t.all);
-
-  // 核心：根据 URL 参数同步状态
-  useEffect(() => {
+  const activeCategory = (() => {
     const view = searchParams.get("view");
     const catParam = searchParams.get("category");
 
-    if (view === "favorites") {
-      setActiveCategory(favLabel);
-    } else if (view === "roadmaps") {
-      setActiveCategory(roadmapLabel);
-    } else if (catParam) {
-      // 验证参数是否在当前语言的分类列表中
+    if (view === "favorites") return favLabel;
+    if (view === "roadmaps") return roadmapLabel;
+    if (catParam) {
       const decodedCat = decodeURIComponent(catParam);
-      if (currentCategories.includes(decodedCat)) {
-        setActiveCategory(decodedCat);
-      } else {
-        setActiveCategory(t.all);
-      }
-    } else {
-      setActiveCategory(t.all);
+      if (currentCategories.includes(decodedCat)) return decodedCat;
     }
-  }, [searchParams, favLabel, roadmapLabel, lang, t.all, currentCategories]);
+    return t.all;
+  })();
+
 
   // 防止水合不匹配
   useEffect(() => {
