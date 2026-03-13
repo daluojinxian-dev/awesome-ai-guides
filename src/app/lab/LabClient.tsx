@@ -108,52 +108,53 @@ export default function LabClient({ initialPrompts }: { initialPrompts: LabPromp
 
       <AnimatePresence>
         {selectedPrompt && (
-          <div className="fixed inset-0 z-[100] flex justify-end">
-            {/* 更加科技感的遮罩：背景模糊 + 主题色柔化 */}
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6">
+            {/* 灵感遮罩：通透的磨砂质感，让焦点完全集中 */}
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setSelectedPrompt(null)}
-              className="absolute inset-0 bg-background/40 backdrop-blur-xl transition-all"
+              className="absolute inset-0 bg-background/70 backdrop-blur-2xl"
             />
             
-            {/* 侧边抽屉面板 */}
+            {/* 居中悬浮实验室卡片 */}
             <motion.div 
-              initial={{ x: "100%", opacity: 0.5 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: "100%", opacity: 0.5 }}
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="w-full max-w-2xl bg-card border-l border-border shadow-[-20px_0_50px_rgba(0,0,0,0.1)] relative z-10 flex flex-col h-full"
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ type: "spring", damping: 25, stiffness: 250 }}
+              className="w-full max-w-4xl bg-card border border-primary/20 shadow-[0_32px_128px_-10px_rgba(0,0,0,0.3)] rounded-[2.5rem] relative z-10 flex flex-col h-full max-h-[85vh] overflow-hidden"
             >
-                {/* 面板头部 */}
-                <div className="p-6 md:p-8 border-b border-border/50 flex items-start justify-between bg-card/80 backdrop-blur-md sticky top-0 z-20">
+                {/* 顶部标题栏：带有特殊的渐变背景以增加层次感 */}
+                <div className="p-6 md:p-10 border-b border-border/50 flex items-center justify-between bg-card/50 backdrop-blur-md relative">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
                   <div>
-                    <div className="inline-flex items-center gap-2 px-2 py-0.5 rounded-md bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider mb-2">
+                    <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-[0.1em] mb-3">
                       {selectedPrompt.category}
                     </div>
-                    <h2 className="text-xl md:text-2xl font-bold mb-1 flex items-center gap-3">
-                      <Sparkles className="w-5 h-5 text-primary" />
+                    <h2 className="text-xl md:text-3xl font-bold mb-1 flex items-center gap-3">
+                      <Sparkles className="w-6 h-6 text-primary" />
                       {selectedPrompt.title}
                     </h2>
-                    <p className="text-muted text-xs md:text-sm">{selectedPrompt.desc}</p>
+                    <p className="text-muted text-sm md:text-base opacity-80">{selectedPrompt.desc}</p>
                   </div>
                   <button 
                     onClick={() => setSelectedPrompt(null)}
-                    className="p-2 hover:bg-primary/10 rounded-full transition-all hover:rotate-90"
+                    className="p-3 hover:bg-primary/10 rounded-2xl transition-all hover:scale-110 active:scale-90 border border-transparent hover:border-primary/20"
                   >
                     <X className="w-6 h-6" />
                   </button>
                 </div>
 
-                {/* 配置区域 - 自带滚动且不限制高度 */}
-                <div className="flex-grow overflow-y-auto p-6 md:p-8 custom-scrollbar bg-background/30">
+                {/* 内容配置区：深色衬托提升专注度 */}
+                <div className="flex-grow overflow-y-auto p-6 md:px-10 md:py-8 custom-scrollbar bg-background/20">
                   <PromptBox content={selectedPrompt.content} />
                 </div>
 
-                {/* 面板底部装饰（可选） */}
-                <div className="p-4 border-t border-border/30 bg-card/50 text-[10px] text-muted text-center font-mono opacity-50 uppercase tracking-[0.2em]">
-                  Prompt Laboratory / Template Configuration
+                {/* 底部装饰 */}
+                <div className="px-10 py-4 bg-muted/30 text-[10px] text-muted text-center font-mono opacity-40 uppercase tracking-[0.3em]">
+                  Focused Interaction / AI Evolution Lab
                 </div>
             </motion.div>
           </div>
