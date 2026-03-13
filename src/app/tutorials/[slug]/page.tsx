@@ -1,9 +1,10 @@
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
-import ReactMarkdown from "react-markdown";
 import Link from "next/link";
 import { ArrowLeft, Calendar, User, Tag } from "lucide-react";
+import Comments from "@/components/Comments";
+import MarkdownRenderer from "@/components/MarkdownRenderer";
 
 export async function generateStaticParams() {
     const contentDirectory = path.join(process.cwd(), "src/content/tutorials");
@@ -49,7 +50,6 @@ export default async function TutorialPage({ params }: { params: Promise<{ slug:
             </nav>
 
             <article className="pt-32 pb-24 px-6 max-w-4xl mx-auto">
-                {/* Header */}
                 <header className="mb-12">
                     <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
                         {data.title}
@@ -73,7 +73,6 @@ export default async function TutorialPage({ params }: { params: Promise<{ slug:
                     </div>
                 </header>
 
-                {/* Content */}
                 <div className="prose prose-invert prose-blue max-w-none 
           prose-headings:text-foreground prose-headings:font-bold prose-headings:mt-12 prose-headings:mb-6
           prose-p:text-muted prose-p:leading-relaxed prose-p:mb-6
@@ -83,16 +82,19 @@ export default async function TutorialPage({ params }: { params: Promise<{ slug:
           prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:bg-primary/5 prose-blockquote:p-6 prose-blockquote:italic
           prose-strong:text-foreground prose-a:text-primary prose-a:no-underline hover:prose-a:underline
           ">
-                    <ReactMarkdown>{content}</ReactMarkdown>
+                    <MarkdownRenderer content={content} />
                 </div>
 
-                {/* Footer */}
                 <footer className="mt-16 pt-8 border-t border-border/50 text-center">
                     <p className="text-muted text-sm mb-6">觉得教程有帮助？分享给更多人吧！</p>
-                    <Link href="/" className="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-primary text-white hover:bg-primary/80 transition-all font-medium shadow-lg shadow-primary/20">
-                        探索更多 AI 工具
-                    </Link>
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                        <Link href="/" className="px-8 py-3 rounded-full bg-primary text-white hover:bg-primary/80 transition-all font-medium shadow-lg shadow-primary/20">
+                            探索更多 AI 工具
+                        </Link>
+                    </div>
                 </footer>
+
+                <Comments />
             </article>
         </main>
     );

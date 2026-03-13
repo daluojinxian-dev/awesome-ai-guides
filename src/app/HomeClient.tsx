@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { TRANSLATIONS } from "@/lib/data";
-import { Search, ExternalLink, BookOpen, Brain, Download, Code2, Image as ImageIcon, Languages, Sun, Moon, Monitor } from "lucide-react";
+import { Search, ExternalLink, BookOpen, Brain, Download, Code2, Image as ImageIcon, Languages, Sun, Moon, Monitor, Heart } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "next-themes";
 import NewsFlash from "@/components/NewsFlash";
@@ -24,7 +24,7 @@ interface ToolData {
   tags: string[];
   icon: string;
   link: string;
-  languages: string[]; // 数组
+  languages: string[];
   date: string;
 }
 
@@ -37,14 +37,27 @@ export default function HomeClient({
 }) {
   const [lang, setLang] = useState<"zh" | "en">("zh");
   const [searchQuery, setSearchQuery] = useState("");
+  const [favorites, setFavorites] = useState<string[]>([]);
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   // 防止水合不匹配
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    setMounted(true);
+    const saved = localStorage.getItem("favorites");
+    if (saved) {
+      try {
+        setFavorites(JSON.parse(saved));
+      } catch (e) {
+        console.error("Failed to parse favorites", e);
+      }
+    }
+  }, []);
 
   const t = TRANSLATIONS[lang];
-  const currentCategories = categoriesData[lang];
+  // 注入“我的收藏”分类
+  const favLabel = lang === "zh" ? "我的收藏" : "Favorites";
+  const currentCategories = [favLabel, ...categoriesData[lang]];
 
   const [activeCategory, setActiveCategory] = useState(t.all);
 
@@ -53,13 +66,27 @@ export default function HomeClient({
     setActiveCategory(TRANSLATIONS[lang].all);
   }, [lang]);
 
+  const toggleFavorite = (id: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const newFavs = favorites.includes(id) 
+      ? favorites.filter(favId => favId !== id)
+      : [...favorites, id];
+    setFavorites(newFavs);
+    localStorage.setItem("favorites", JSON.stringify(newFavs));
+  };
+
   const filteredTools = tools.filter((tool) => {
-    // 关键修正：检查数组中是否包含当前语言
     if (!tool.languages.includes(lang)) return false;
 
     const matchesSearch =
       tool.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       tool.desc.toLowerCase().includes(searchQuery.toLowerCase());
+
+    // 处理特殊分类：我的收藏
+    if (activeCategory === favLabel) {
+      return matchesSearch && favorites.includes(tool.id);
+    }
 
     const matchesCategory = activeCategory === t.all || tool.category === activeCategory;
     return matchesSearch && matchesCategory;
@@ -147,9 +174,14 @@ export default function HomeClient({
             className={`px-6 py-2 rounded-full border transition-all duration-300 transform active:scale-95 ${activeCategory === cat
               ? "bg-primary border-primary text-white shadow-lg shadow-primary/30"
               : "border-border bg-card/30 text-muted hover:border-primary/40 hover:text-primary hover:bg-card/50"
-              }`}
+              } ${cat === favLabel && favorites.length > 0 ? "relative" : ""}`}
           >
             {cat}
+            {cat === favLabel && favorites.length > 0 && (
+              <span className="absolute -top-1 -right-1 w-4 h-4 bg-accent text-[10px] flex items-center justify-center rounded-full text-white animate-bounce-subtle">
+                {favorites.length}
+              </span>
+            )}
           </button>
         ))}
       </div>
@@ -159,6 +191,7 @@ export default function HomeClient({
           <AnimatePresence mode="popLayout" initial={false}>
             {filteredTools.map((tool) => {
               const Icon = iconMap[tool.icon] || Brain;
+              const isFav = favorites.includes(tool.id);
               
               return (
                 <motion.div
@@ -176,6 +209,14 @@ export default function HomeClient({
                       <Icon className="w-6 h-6 text-primary" />
                     </div>
                     <div className="flex gap-2">
+                      <button
+                        onClick={(e) => toggleFavorite(tool.id, e)}
+                        className={`p-2 rounded-lg border transition-all ${isFav 
+                          ? "bg-accent/10 border-accent/20 text-accent" 
+                          : "border-transparent text-muted hover:text-accent hover:border-accent/20 hover:bg-accent/5"}`}
+                      >
+                        <Heart className={`w-4 h-4 ${isFav ? "fill-current" : ""}`} />
+                      </button>
                       <a
                         href={tool.link}
                         target="_blank"
@@ -219,7 +260,9 @@ export default function HomeClient({
             <div className="p-6 rounded-full bg-card/50 border border-border animate-pulse">
               <Search className="w-12 h-12 text-muted/30" />
             </div>
-            <p className="text-lg">{t.noResults}</p>
+            <p className="text-lg">
+              {activeCategory === favLabel ? "您还没有收藏任何工具哦，快去点个小爱心吧！" : t.noResults}
+            </p>
           </div>
         )}
       </section>
