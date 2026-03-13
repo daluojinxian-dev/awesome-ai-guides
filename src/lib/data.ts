@@ -14,6 +14,11 @@ export const TRANSLATIONS = {
         themeSystem: "跟随系统",
         themeLight: "明亮模式",
         themeDark: "暗黑模式",
+        navExplore: "探索工具",
+        navRoadmaps: "进化路线图",
+        navLab: "提示词实验室",
+        navFavorites: "我的收藏",
+        navLibrary: "个人中心"
     },
     en: {
         title: "AI Evolution Guide",
@@ -30,5 +35,10 @@ export const TRANSLATIONS = {
         themeSystem: "System",
         themeLight: "Light",
         themeDark: "Dark",
+        navExplore: "Explore Tools",
+        navRoadmaps: "Roadmaps",
+        navLab: "Prompt Lab",
+        navFavorites: "Favorites",
+        navLibrary: "Library"
     }
 };

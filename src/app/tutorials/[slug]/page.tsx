@@ -16,6 +16,8 @@ export async function generateStaticParams() {
     }));
 }
 
+import TutorialHeader from "@/components/TutorialHeader";
+
 export default async function TutorialPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;
     const contentDirectory = path.join(process.cwd(), "src/content/tutorials");
@@ -56,20 +58,10 @@ export default async function TutorialPage({ params }: { params: Promise<{ slug:
     }
 
     return (
-        <main className="min-h-screen bg-mesh text-foreground">
-            <nav className="fixed top-0 w-full z-50 px-6 py-4 glass-card border-b border-border/50">
-                <div className="max-w-4xl mx-auto flex items-center justify-between">
-                    <Link href="/" className="flex items-center gap-2 text-primary hover:text-accent transition-all group font-medium">
-                        <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-                        AI 进化指南
-                    </Link>
-                    <div className="text-xs text-muted font-mono uppercase tracking-widest hidden md:block">
-                        Tutorial / Guide
-                    </div>
-                </div>
-            </nav>
+        <div className="min-h-screen text-foreground">
+            <TutorialHeader />
 
-            <article className="pt-32 pb-24 px-6 max-w-4xl mx-auto">
+            <article className="pt-28 pb-24 px-6 max-w-4xl mx-auto">
                 <header className="mb-12">
                     {data.roadmap && (
                         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-widest mb-4">
@@ -136,6 +128,6 @@ export default async function TutorialPage({ params }: { params: Promise<{ slug:
 
                 <Comments />
             </article>
-        </main>
+        </div>
     );
 }

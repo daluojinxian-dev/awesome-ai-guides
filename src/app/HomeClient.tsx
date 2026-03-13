@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { TRANSLATIONS } from "@/lib/data";
+import { useLanguage } from "@/components/LanguageProvider";
 import { Search, ExternalLink, BookOpen, Brain, Download, Code2, Image as ImageIcon, Languages, Sun, Moon, Monitor, Heart, Compass, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "next-themes";
@@ -30,7 +32,15 @@ interface ToolData {
   order?: number;
 }
 
-export default function HomeClient({ 
+export default function HomeClient(props: any) {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <HomeClientContent {...props} />
+    </Suspense>
+  );
+}
+
+function HomeClientContent({ 
     tools, 
     categoriesData,
     roadmapData
@@ -39,11 +49,42 @@ export default function HomeClient({
     categoriesData: { zh: string[], en: string[] },
     roadmapData: Record<string, { count: number, firstSlug: string }>
 }) {
-  const [lang, setLang] = useState<"zh" | "en">("zh");
+  const { lang, toggleLang } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
   const [favorites, setFavorites] = useState<string[]>([]);
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const t = TRANSLATIONS[lang];
+  const favLabel = lang === "zh" ? "我的收藏" : "Favorites";
+  const roadmapLabel = lang === "zh" ? "进化路线图" : "Roadmaps";
+  const currentCategories = [roadmapLabel, favLabel, ...categoriesData[lang]];
+
+  const [activeCategory, setActiveCategory] = useState(t.all);
+
+  // 核心：根据 URL 参数同步状态
+  useEffect(() => {
+    const view = searchParams.get("view");
+    const catParam = searchParams.get("category");
+
+    if (view === "favorites") {
+      setActiveCategory(favLabel);
+    } else if (view === "roadmaps") {
+      setActiveCategory(roadmapLabel);
+    } else if (catParam) {
+      // 验证参数是否在当前语言的分类列表中
+      const decodedCat = decodeURIComponent(catParam);
+      if (currentCategories.includes(decodedCat)) {
+        setActiveCategory(decodedCat);
+      } else {
+        setActiveCategory(t.all);
+      }
+    } else {
+      setActiveCategory(t.all);
+    }
+  }, [searchParams, favLabel, roadmapLabel, lang, t.all, currentCategories]);
 
   // 防止水合不匹配
   useEffect(() => {
@@ -58,17 +99,17 @@ export default function HomeClient({
     }
   }, []);
 
-  const t = TRANSLATIONS[lang];
-  const favLabel = lang === "zh" ? "我的收藏" : "Favorites";
-  const roadmapLabel = lang === "zh" ? "进化路线图" : "Roadmaps";
-  const currentCategories = [roadmapLabel, favLabel, ...categoriesData[lang]];
-
-  const [activeCategory, setActiveCategory] = useState(t.all);
-
-  // 语言切换时重置分类
-  useEffect(() => {
-    setActiveCategory(TRANSLATIONS[lang].all);
-  }, [lang]);
+  const handleCategoryClick = (cat: string) => {
+    if (cat === favLabel) {
+      router.push("/?view=favorites");
+    } else if (cat === roadmapLabel) {
+      router.push("/?view=roadmaps");
+    } else if (cat === t.all) {
+      router.push("/");
+    } else {
+      router.push(`/?category=${encodeURIComponent(cat)}`);
+    }
+  };
 
   const toggleFavorite = (id: string, e: React.MouseEvent) => {
     e.preventDefault();
@@ -81,7 +122,8 @@ export default function HomeClient({
   };
 
   const filteredTools = tools.filter((tool) => {
-    if (!tool.languages.includes(lang)) return false;
+    // 过滤掉当前语言不支持的工具
+    if (tool.languages && !tool.languages.includes(lang)) return false;
 
     const matchesSearch =
       tool.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -91,20 +133,13 @@ export default function HomeClient({
       return matchesSearch && favorites.includes(tool.id);
     }
     
-    // 路线图标签页显示所有属于任何路线图且 order=1 的入口文章，或者全部属于该路线图的文章
-    // 为了简单起见，如果是在“路线图”分类，我们展示路线图聚合卡片（通过特殊逻辑处理）
-    // 这里我们先过滤掉非该路线图的内容
     if (activeCategory === roadmapLabel) {
-      return matchesSearch && tool.roadmap !== null;
+      return matchesSearch && tool.roadmap !== undefined && tool.roadmap !== null;
     }
 
     const matchesCategory = activeCategory === t.all || tool.category === activeCategory;
     return matchesSearch && matchesCategory;
   });
-
-  const toggleLang = () => {
-    setLang(lang === "zh" ? "en" : "zh");
-  };
 
   const cycleTheme = () => {
     if (theme === "system") setTheme("light");
@@ -128,24 +163,22 @@ export default function HomeClient({
 
   return (
     <main className="min-h-screen bg-mesh text-foreground selection:bg-primary/30 transition-colors duration-300">
-      <nav className="fixed top-0 w-full z-50 px-6 py-4 flex justify-end gap-3">
-        <button
-          onClick={toggleLang}
-          className="flex items-center gap-2 px-4 py-2 rounded-full glass-card hover:bg-primary/5 transition-all text-sm font-medium border-border"
-        >
-          <Languages className="w-4 h-4 text-primary" />
-          {t.lang}
-        </button>
-        <button
-          onClick={cycleTheme}
-          className="flex items-center gap-2 px-4 py-2 rounded-full glass-card hover:bg-primary/5 transition-all text-sm font-medium border-border"
-        >
-          {getThemeIcon()}
-          {getThemeLabel()}
-        </button>
-      </nav>
-
-      <section className="relative pt-32 pb-16 px-6 text-center">
+      <section className="relative pt-24 pb-16 px-6 text-center">
+        <div className="absolute top-4 right-6 flex gap-3">
+          <button
+            onClick={toggleLang}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg glass-card hover:bg-primary/5 transition-all text-xs font-medium border-border"
+          >
+            <Languages className="w-4 h-4 text-primary" />
+            {t.lang}
+          </button>
+          <button
+            onClick={cycleTheme}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-lg glass-card hover:bg-primary/5 transition-all text-xs font-medium border-border"
+          >
+            {getThemeIcon()}
+          </button>
+        </div>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -180,7 +213,7 @@ export default function HomeClient({
         {currentCategories.map((cat) => (
           <button
             key={cat}
-            onClick={() => setActiveCategory(cat)}
+            onClick={() => handleCategoryClick(cat)}
             className={`px-6 py-2 rounded-full border transition-all duration-300 transform active:scale-95 ${activeCategory === cat
               ? "bg-primary border-primary text-white shadow-lg shadow-primary/30"
               : "border-border bg-card/30 text-muted hover:border-primary/40 hover:text-primary hover:bg-card/50"
