@@ -6,7 +6,7 @@ import HomeClient from "./HomeClient";
 export default async function HomePage() {
     const tutorialsDir = path.join(process.cwd(), "src/content/tutorials");
     let tools: any[] = [];
-    let roadmaps: Record<string, { count: number, firstSlug: string }> = {};
+    let roadmaps: Record<string, { count: number, firstSlug: string, minOrder: number }> = {};
 
     if (fs.existsSync(tutorialsDir)) {
         const filenames = fs.readdirSync(tutorialsDir);
@@ -41,11 +41,13 @@ export default async function HomePage() {
                 // 统计路线图
                 if (tool.roadmap) {
                     if (!roadmaps[tool.roadmap]) {
-                        roadmaps[tool.roadmap] = { count: 0, firstSlug: "" };
+                        roadmaps[tool.roadmap] = { count: 0, firstSlug: tool.slug, minOrder: tool.order };
                     }
                     roadmaps[tool.roadmap].count++;
-                    // 如果是第一篇，记录 slug 用于快速跳转
-                    if (tool.order === 1) {
+                    
+                    // 动态寻找当前路线图中最靠前的文章 (order 最小)
+                    if (tool.order < roadmaps[tool.roadmap].minOrder) {
+                        roadmaps[tool.roadmap].minOrder = tool.order;
                         roadmaps[tool.roadmap].firstSlug = tool.slug;
                     }
                 }
