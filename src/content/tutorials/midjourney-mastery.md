@@ -45,5 +45,12 @@ Cyberpunk fashion photography, model wearing translucent glass jacket with fiber
 如果不是重度发烧友，**Basic Plan ($10/mo)** 通常够用。
 如果需要“私密生成”（不让别人在瀑布流看到你的作品），则需要订阅 **Pro Plan**。
 
+## 实战工具箱
+
+充分利用**提示词实验室**的预设模板，让创作事半功倍：
+
+- [🎨 **Midjourney 风格家**](/lab?template=mj-stylist)：快速生成具有艺术感的高级咒语。
+- [🆔 **专业证件照生成**](/lab?template=id-photo-maker)：标准尺寸、底色与职业装一键配置。
+
 ---
 *掌握 AI 美学，我们在 [onai.help](https://onai.help) 等你。*
